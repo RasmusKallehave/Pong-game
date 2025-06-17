@@ -1,8 +1,8 @@
 import turtle
 class PauseState:
-    def __init__(self, state_machine, previous_state):
+    def __init__(self, state_machine, previous_state_instance):
         self.state_machine = state_machine
-        self.previous_state = previous_state
+        self.previous_state = previous_state_instance
         self.message = turtle.Turtle()
         self.message.hideturtle()
         self.message.penup()
@@ -48,7 +48,8 @@ class PauseState:
             if self.selection == 0:
                 self.message.clear()
                 print("[PauseState] Resuming game...")
-                turtle.ontimer(lambda: self.state_machine.set_state(self.previous_state), 1)
+                self.state_machine.current_state = self.previous_state
+                self.previous_state.enter()
             elif self.selection == 1:
                 turtle.bye()
     def exit(self):

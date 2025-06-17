@@ -2,6 +2,7 @@ import turtle
 
 class Paddle:
     def __init__(self, x_position, y_limit = 250):
+        self._x_position = x_position
         self._y_limit = y_limit
         self._paddle = turtle.Turtle()
         self._paddle.speed(0)
@@ -56,5 +57,16 @@ class Paddle:
         else:
             self._move_loop_active = False
 
+    def reset_position(self):
+        self._paddle.goto(self._x_position, 0)
+        
     def get_turtle(self):
         return self._paddle
+
+    def disable_movement(self):
+        self._moving_up = False
+        self._moving_down = False
+        self._paddle.color("gray")
+
+    def enable_movement(self):
+        self._paddle.color("white")

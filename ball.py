@@ -11,6 +11,7 @@ class Ball:
         self._ball.goto(0, 0)
         self._dx = speed
         self._dy = speed
+        self._initial_speed = speed
         self._start_time = time.time()
         self._speedups_done = 0
 
@@ -29,6 +30,8 @@ class Ball:
 
     def reset_position(self):
         self._ball.goto(0, 0)
+        self._dx = self._initial_speed
+        self._dy = self._initial_speed
         self.reset_speed_timer()
 
     def reset_speed_timer(self):
@@ -54,8 +57,8 @@ class Ball:
         current_time = time.time()
         elapsed = current_time - self._start_time
         print(f"[DEBUG] Elapsed: {elapsed:.2f} sec, Speedups done: {self._speedups_done}")
-        if elapsed >= (self._speedups_done + 1) * 5:
-            self._dx *= 1.3
-            self._dy *= 1.3
+        if elapsed >= (self._speedups_done + 1) * 2:
+            self._dx *= 1.1
+            self._dy *= 1.1
             self._speedups_done += 1
             print(f"[SPEED UP] New dx: {self._dx:.2f}, dy: {self._dy:.2f}")

@@ -11,6 +11,7 @@ class Score:
         self.pen.penup()
         self.pen.hideturtle()
         self.pen.goto(0, 260)
+        self.waiting_for_restart = False
         self.update_display()
 
     def update_display(self):
@@ -21,11 +22,13 @@ class Score:
     def increase_left(self):
         self.left_score += 1
         self.update_display()
+        self.waiting_for_restart = True
         return self.check_winner()
 
     def increase_right(self):
         self.right_score += 1
         self.update_display()
+        self.waiting_for_restart = True
         return self.check_winner()
     
     def check_winner(self):
@@ -34,3 +37,12 @@ class Score:
         elif self.right_score >= self.winning_score:
             return "right"
         return None
+    
+    def is_waiting(self):
+        return self.waiting_for_restart
+
+    def reset(self):
+        self.left_score = 0
+        self.right_score = 0
+        self.waiting_for_restart = False
+        self.update_display()
