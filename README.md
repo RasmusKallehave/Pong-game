@@ -1,0 +1,1 @@
+To run this game enter "python3 main.py" in the termnial

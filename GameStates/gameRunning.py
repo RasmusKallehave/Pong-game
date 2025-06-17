@@ -1,0 +1,101 @@
+from GameStates.mainMenu import MainMenu
+from screen import GameScreen
+from paddle import Paddle
+from ball import Ball
+from collision import CollisionHandler
+from GameStates.gameState import GameState
+from score import Score
+from GameStates.gameWin import GameWin
+
+
+class GameRunning:
+    def __init__(self, state_machine):
+        self.active = False
+        self.state_machine = state_machine
+        self.state = GameState()
+        self.screen = GameScreen()
+        self.initialized = False # track first-time setup
+        self.score = None
+
+    def enter(self):
+        if self.active:
+            return
+        self.active = True
+        if not self.initialized:
+            self.left_paddle = Paddle(-350)
+            self.right_paddle = Paddle(350)
+            self.ball = Ball()
+            self.state.start_game()
+            self.score = Score()
+            self.initialized = True
+
+        turtle_screen = self.screen._screen
+        turtle_screen.listen()
+        turtle_screen.onkeypress(lambda: self.left_paddle.start_move_up(), "w")
+        turtle_screen.onkeyrelease(lambda: self.left_paddle.stop_move_up(), "w")
+        turtle_screen.onkeypress(lambda: self.left_paddle.start_move_down(), "s")
+        turtle_screen.onkeyrelease(lambda: self.left_paddle.stop_move_down(), "s")
+        turtle_screen.onkeypress(lambda: self.right_paddle.start_move_up(), "Up")
+        turtle_screen.onkeyrelease(lambda: self.right_paddle.stop_move_up(), "Up")
+        turtle_screen.onkeypress(lambda: self.right_paddle.start_move_down(), "Down")
+        turtle_screen.onkeyrelease(lambda: self.right_paddle.stop_move_down(), "Down")
+
+    def exit(self):
+        turtle_screen = self.screen._screen
+        for key in ["w", "s", "Up", "Down"]:
+            turtle_screen.onkeypress(None, key)
+            turtle_screen.onkeyrelease(None, key)
+        if hasattr(self, "left_paddle"):
+            self.left_paddle._paddle.hideturtle()
+        if hasattr(self, "right_paddle"):
+            self.right_paddle._paddle.hideturtle()
+        if hasattr(self, "ball"):
+            self.ball._ball.hideturtle()
+        if hasattr(self, "score"):
+            self.score.pen.clear()
+        self.active = False
+
+    def start_game(self):
+        self.left_paddle = Paddle(-350)
+        self.right_paddle = Paddle(350)
+        self.ball = Ball()
+        self.state.start_game()
+
+    def quit_game(self):
+        self.state.game_over()
+
+    def update(self):
+        if self.state.is_running():
+            self.ball.move()
+            CollisionHandler.handle_paddle_bounce(self.ball, self.left_paddle, self.right_paddle)
+
+            if self.ball.ycor() > 290 or self.ball.ycor() < -290:
+                self.ball.bounce_y()
+
+            winner = None
+            if self.ball.xcor() > 390:
+                winner = self.score.increase_right()
+                self.ball.reset_position()
+            elif self.ball.xcor() < -390:
+                winner = self.score.increase_left()
+                self.ball.reset_position()
+
+            if winner:
+                if hasattr(self, "left_paddle"):
+                    self.left_paddle._paddle.hideturtle()
+                if hasattr(self, "right_paddle"):
+                    self.right_paddle._paddle.hideturtle()
+                if hasattr(self, "ball"):
+                    self.ball._ball.hideturtle()
+                if hasattr(self, "score"):
+                    self.score.pen.clear()
+                self.state_machine.states["game_win"] = GameWin(self.state_machine, winner)
+                self.state_machine.set_state("game_win")
+                del self.state_machine.states["game_running"]
+                return
+
+            self.screen.update()
+
+    def handle_input(self, key):
+        if key == "Escape":
+            self.state_machine.set_state("pause")
