@@ -4,7 +4,7 @@ class Score:
     def __init__(self):
         self.left_score = 0
         self.right_score = 0
-        self.winning_score = 5
+        self.winning_score = 3
         self.pen = turtle.Turtle()
         self.pen.speed(0)
         self.pen.color("white")

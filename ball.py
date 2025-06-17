@@ -56,9 +56,9 @@ class Ball:
     def maybe_speed_up(self):
         current_time = time.time()
         elapsed = current_time - self._start_time
-        print(f"[DEBUG] Elapsed: {elapsed:.2f} sec, Speedups done: {self._speedups_done}")
+        #print(f"[DEBUG] Elapsed: {elapsed:.2f} sec, Speedups done: {self._speedups_done}")
         if elapsed >= (self._speedups_done + 1) * 2:
             self._dx *= 1.1
             self._dy *= 1.1
             self._speedups_done += 1
-            print(f"[SPEED UP] New dx: {self._dx:.2f}, dy: {self._dy:.2f}")
+            #print(f"[SPEED UP] New dx: {self._dx:.2f}, dy: {self._dy:.2f}")

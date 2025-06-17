@@ -37,8 +37,6 @@ class GameWin:
     def update(self):
         pass
 
-    def handle_input(self, key):
-        pass
 
     def quit_game(self):
         turtle.bye()

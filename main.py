@@ -2,7 +2,6 @@ import turtle
 from GameStates.stateMachine import StateMachine
 from GameStates.mainMenu import MainMenu
 from GameStates.gameRunning import GameRunning
-from GameStates.pauseState import PauseState
 
 # Set up screen
 screen = turtle.Screen()
@@ -24,8 +23,6 @@ game_state.menu = menu_state
 
 state_machine.add_state("main_menu", menu_state)
 state_machine.add_state("game_running", game_state)
-pause_state = PauseState(state_machine, "game_running")
-state_machine.add_state("pause", pause_state)
 
 # Updated set_state method with exit call
 def new_set_state(name):
@@ -41,7 +38,6 @@ def new_set_state(name):
 state_machine.set_state = new_set_state
 
 screen.onkeypress(lambda: state_machine.set_state("game_running"), "space")
-screen.onkeypress(lambda: state_machine.set_state("pause"), "Escape")
 screen.listen()
 
 state_machine.set_state("main_menu")

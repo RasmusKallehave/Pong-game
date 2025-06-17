@@ -20,14 +20,21 @@ class GameRunning:
 
     def bind_keys(self):
         turtle_screen = self.screen._screen
-        turtle_screen.onkeypress(lambda: self.left_paddle.start_move_up(), "w")
-        turtle_screen.onkeyrelease(lambda: self.left_paddle.stop_move_up(), "w")
-        turtle_screen.onkeypress(lambda: self.left_paddle.start_move_down(), "s")
-        turtle_screen.onkeyrelease(lambda: self.left_paddle.stop_move_down(), "s")
-        turtle_screen.onkeypress(lambda: self.right_paddle.start_move_up(), "Up")
-        turtle_screen.onkeyrelease(lambda: self.right_paddle.stop_move_up(), "Up")
-        turtle_screen.onkeypress(lambda: self.right_paddle.start_move_down(), "Down")
-        turtle_screen.onkeyrelease(lambda: self.right_paddle.stop_move_down(), "Down")
+
+        def safe_bind(key, method):
+            turtle_screen.onkeypress(lambda: method() if self.active else None, key)
+
+        def safe_release(key, method):
+            turtle_screen.onkeyrelease(lambda: method() if self.active else None, key)
+
+        safe_bind("w", self.left_paddle.start_move_up)
+        safe_release("w", self.left_paddle.stop_move_up)
+        safe_bind("s", self.left_paddle.start_move_down)
+        safe_release("s", self.left_paddle.stop_move_down)
+        safe_bind("Up", self.right_paddle.start_move_up)
+        safe_release("Up", self.right_paddle.stop_move_up)
+        safe_bind("Down", self.right_paddle.start_move_down)
+        safe_release("Down", self.right_paddle.stop_move_down)
 
     def unbind_keys(self):
         turtle_screen = self.screen._screen
@@ -92,7 +99,7 @@ class GameRunning:
         self.state.game_over()
 
     def update(self):
-        if self.waiting_for_continue:
+        if self.waiting_for_continue or not self.active:
             self.screen.update()
             return
 
@@ -138,7 +145,3 @@ class GameRunning:
                 return
 
             self.screen.update()
-
-    def handle_input(self, key):
-        if key == "Escape":
-            self.state_machine.set_state("pause", previous_state=self)

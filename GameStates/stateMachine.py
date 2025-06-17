@@ -6,12 +6,14 @@ class StateMachine:
     def add_state(self, name, state):
         self.states[name] = state
 
-    def set_state(self, name):
+    def set_state(self, name, **kwargs):
         print(f"[StateMachine] Switching to: {name}")
-        if name in self.states:
-            self.current_state = self.states[name]
-            if hasattr(self.current_state, 'enter'):
-                self.current_state.enter()
+        if self.current_state and hasattr(self.current_state, 'exit'):
+            self.current_state.exit()
+
+        self.current_state = self.states[name]
+        if hasattr(self.current_state, 'enter'):
+            self.current_state.enter(**kwargs)
 
     def update(self):
         if self.current_state and hasattr(self.current_state, 'update'):
