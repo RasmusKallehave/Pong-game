@@ -1,7 +1,5 @@
 import turtle
-from GameStates.stateMachine import StateMachine
-from GameStates.mainMenu import MainMenu
-from GameStates.gameRunning import GameRunning
+from GameStates.stateMachine import StateMachine, register_all_states
 
 # Set up screen
 screen = turtle.Screen()
@@ -10,36 +8,15 @@ screen.bgcolor("black")
 screen.title("Pong")
 screen.tracer(0)
 
-# Set up state machine
+# Set up state machine and register all states
 state_machine = StateMachine()
+register_all_states(state_machine)
 
-# Create and add states
-menu_state = MainMenu(game=None)  # Placeholder
-game_state = GameRunning(state_machine)
-
-# Inject game into menu now that it's created
-menu_state.game = game_state
-game_state.menu = menu_state
-
-state_machine.add_state("main_menu", menu_state)
-state_machine.add_state("game_running", game_state)
-
-# Updated set_state method with exit call
-def new_set_state(name):
-    print(f"[StateMachine] Switching to: {name}")
-    if name in state_machine.states:
-        if state_machine.current_state and hasattr(state_machine.current_state, 'exit'):
-            state_machine.current_state.exit()
-        state_machine.current_state = state_machine.states[name]
-        state_machine.current_state_name = name
-        if hasattr(state_machine.current_state, 'enter'):
-            state_machine.current_state.enter()
-
-state_machine.set_state = new_set_state
-
+# Key bindings
 screen.onkeypress(lambda: state_machine.set_state("game_running"), "space")
 screen.listen()
 
+# Start in main menu
 state_machine.set_state("main_menu")
 
 # Game loop

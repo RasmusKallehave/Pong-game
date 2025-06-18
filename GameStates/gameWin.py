@@ -1,13 +1,13 @@
 import turtle
-
 class GameWin:
-    def __init__(self, state_machine, winner):
+    def __init__(self, state_machine, **kwargs):
         self.state_machine = state_machine
-        self.winner = winner
+        self.winner = kwargs.get("winner", "left")
         self.active = False
         self.pen = turtle.Turtle()
 
-    def enter(self):
+    def enter(self, **kwargs):
+        self.winner = kwargs.get("winner", self.winner)
         if self.active:
             return
         self.active = True
@@ -37,12 +37,10 @@ class GameWin:
     def update(self):
         pass
 
-
     def quit_game(self):
         turtle.bye()
 
     def restart_game(self):
-        from GameStates.gameRunning import GameRunning 
-        new_game = GameRunning(self.state_machine)
-        self.state_machine.states["game_running"] = new_game
+        if "game_running" in self.state_machine.states:
+            del self.state_machine.states["game_running"]
         self.state_machine.set_state("game_running")

@@ -6,6 +6,7 @@ from collision import CollisionHandler
 from GameStates.gameState import GameState
 from score import Score
 from GameStates.gameWin import GameWin
+from GameStates.pauseMenu import PauseMenu
 
 
 class GameRunning:
@@ -17,6 +18,7 @@ class GameRunning:
         self.initialized = False # track first-time setup
         self.score = None
         self.waiting_for_continue = False
+        self.pause_menu = None
 
     def bind_keys(self):
         turtle_screen = self.screen._screen
@@ -46,6 +48,8 @@ class GameRunning:
         if self.active:
             return
         self.active = True
+        screen = self.screen._screen
+        screen.onkeypress(self.toggle_pause, "Escape")
         if not self.initialized:
             self.left_paddle = Paddle(-350)
             self.right_paddle = Paddle(350)
@@ -54,11 +58,18 @@ class GameRunning:
             self.score = Score()
             self.initialized = True
         else:
+            self.ball._ball.showturtle()
+            if not self.score:
+                self.score = Score()
+            if hasattr(self.score, "pen"):
+                self.score.pen.clear()
+            self.score.update_display()
             self.left_paddle._paddle.showturtle()
             self.right_paddle._paddle.showturtle()
             self.ball._ball.showturtle()
-            self.score.pen.clear()
-            self.score.draw()
+            if not self.waiting_for_continue:
+                self.left_paddle.enable_movement()
+                self.right_paddle.enable_movement()
 
         turtle_screen = self.screen._screen
         turtle_screen.listen()
@@ -72,6 +83,7 @@ class GameRunning:
             turtle_screen.onkeypress(None, key)
             turtle_screen.onkeyrelease(None, key)
         turtle_screen.onkeypress(None, "space")
+        turtle_screen.onkeypress(None, "Escape")
         if hasattr(self, "left_paddle"):
             self.left_paddle._paddle.hideturtle()
         if hasattr(self, "right_paddle"):
@@ -139,9 +151,16 @@ class GameRunning:
                     self.ball._ball.hideturtle()
                 if hasattr(self, "score"):
                     self.score.pen.clear()
-                self.state_machine.states["game_win"] = GameWin(self.state_machine, winner)
-                self.state_machine.set_state("game_win")
-                del self.state_machine.states["game_running"]
+                self.state_machine.set_state("game_win", winner=winner)
                 return
 
             self.screen.update()
+
+    def toggle_pause(self):
+        if self.waiting_for_continue:
+            return
+        print("[GameRunning] Pausing game...")
+        self.unbind_keys()
+        pause_state = PauseMenu(self.state_machine, previous_state=self)
+        self.state_machine.states["pause"] = pause_state
+        self.state_machine.set_state("pause")
